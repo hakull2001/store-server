@@ -1,0 +1,41 @@
+springdoc:
+  swagger-ui:
+    path: /api/swagger-ui
+
+jwt:
+  secret_key: ${JWT_SECRET}
+  time_expiration: 86400000
+  refresh_token_expires : 864000000
+  refresh_token_secret : ${REFRESH_TOKEN_SECRET}
+
+datasources:
+  default:
+    url: jdbc:postgresql://localhost:5432/postgres
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: 26113012a
+    #schema-generate: CREATE_DROP
+    dialect: POSTGRES
+    show-sql: true
+    connection-timeout: 30000
+    maximum-pool-size: 30
+    minimum-idle: 5
+    leak-detection-threshold: 30000
+    initialization-fail-timeout: 60000
+    max-lifetime: 1800000
+
+netty:
+  default:
+    allocator:
+      max-order: 3
+---
+jpa:
+  default:
+    entity-scan:
+      classpath: true
+      packages: 'com'
+    properties:
+      hibernate:
+        hbm2ddl.auto: update
+        show_sql: true
+---
