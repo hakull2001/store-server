@@ -1,10 +1,9 @@
 package com.shopee.service.impl;
 
 import com.shopee.entity.RegistrationUserTokenEntity;
-import com.shopee.entity.User;
+import com.shopee.entity.UserShopEntity;
 import com.shopee.enumerations.UserStatus;
 import com.shopee.exceptions.AppException;
-import com.shopee.exceptions.ErrorResponse;
 import com.shopee.exceptions.NotFoundException;
 import com.shopee.repositories.RegistrationUserTokenRepository;
 import com.shopee.repositories.UserRepository;
@@ -12,10 +11,10 @@ import com.shopee.request.user.SignUpRequest;
 import com.shopee.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -29,28 +28,25 @@ public class UserServiceImpl implements UserService {
     private ModelMapper modelMapper;
 
     @Override
-    public List<User> getAllUsers() {
+    public List<UserShopEntity> getAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
-    public User findByUsername(String username) {
-        User user = userRepository.findByUsername(username);
+    public UserShopEntity findByUsername(String username) {
+        UserShopEntity user = userRepository.findByUsername(username);
         if(user == null)
             throw new NotFoundException("User not found");
         return user;
     }
 
     @Override
-    public User signUp(SignUpRequest request) {
-        if(userRepository.findByUsername(request.getUsername()) != null)
-            throw new AppException("Username has exists");
-        if(userRepository.findByEmail(request.getEmail()) != null)
-            throw new AppException("Email has exists");
-
-        User newUser = modelMapper.map(request, User.class);
+    public UserShopEntity signUp(SignUpRequest request) throws Exception {
+        Optional<UserShopEntity> checkUserExists = userRepository.findByEmailOrUsernameOrPhoneNumber(request.getEmail(), request.getUsername(), request.getPhoneNumber());
+        if(checkUserExists.isPresent())
+            throw new Exception("User has exists");
+        UserShopEntity newUser = modelMapper.map(request, UserShopEntity.class);
         return userRepository.save(newUser);
-
     }
 
     @Override
@@ -59,7 +55,7 @@ public class UserServiceImpl implements UserService {
         if(registrationUserToken == null)
             throw new AppException("Can not active this user");
 
-        User user = registrationUserToken.getUser();
+        UserShopEntity user = registrationUserToken.getUser();
 
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
@@ -67,23 +63,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByEmail(String email) {
-        User user = userRepository.findByEmail(email);
+    public UserShopEntity findByEmail(String email) {
+        UserShopEntity user = userRepository.findByEmail(email);
         if(user == null)
             throw new NotFoundException("This user is not exists");
         return user;
     }
 
     @Override
-    public User findByUserId(Long userId) {
-        User user = userRepository.findByUserId(userId);
+    public UserShopEntity findByUserId(Long userId) {
+        UserShopEntity user = userRepository.findByUserId(userId);
         if(user == null)
             throw new NotFoundException("Can not find this user");
         return user;
     }
 
     @Override
-    public void updateUser(User user) {
+    public void updateUser(UserShopEntity user) {
         userRepository.save(user);
     }
 

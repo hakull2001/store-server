@@ -1,7 +1,7 @@
 package com.shopee.controller;
 
 import com.shopee.entity.ResetPasswordTokenEntity;
-import com.shopee.entity.User;
+import com.shopee.entity.UserShopEntity;
 import com.shopee.exceptions.AppException;
 import com.shopee.exceptions.NotFoundException;
 import com.shopee.request.email.SendEmailRequest;
@@ -9,25 +9,19 @@ import com.shopee.request.user.ForgotPasswordRequest;
 import com.shopee.request.user.LoginRequest;
 import com.shopee.request.user.ResetPasswordRequest;
 import com.shopee.request.user.SignUpRequest;
-import com.shopee.response.UserInformationResponse;
-import com.shopee.service.EmailService;
-import com.shopee.service.RegistrationUserToken;
-import com.shopee.service.ResetPasswordTokenService;
-import com.shopee.service.UserService;
+import com.shopee.response.ResultResponse;
+import com.shopee.service.*;
 import com.shopee.service.impl.MyUserDetailsServiceImpl;
 import com.shopee.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
-import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -67,9 +61,12 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private AuthService authService;
+
     @PostMapping("/sign-up")
-    public ResponseEntity<?> signUp(@RequestBody @Valid SignUpRequest request) throws MessagingException {
-        User user = userService.signUp(request);
+    public ResultResponse signUp(@RequestBody @Valid SignUpRequest request) throws Exception {
+        UserShopEntity user = userService.signUp(request);
         final String token = jwtUtil.generateToken(myUserDetailsService.loadUserByUsername(user.getUsername()));
         registrationUserToken.createNewRegistrationUserToken(user,token);
         emailService.send(new SendEmailRequest(
@@ -77,7 +74,7 @@ public class AuthController {
                 MSG_CONTENT_MAIL + token,
                 MSG_SUBJECT_MAIL
         ), true);
-        return new ResponseEntity<>(MSC_SIGN_UP_SUCCESS, HttpStatus.CREATED);
+        return ResultResponse.SUCCESS;
     }
 
     @PostMapping("/active/{token}")
@@ -87,23 +84,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest login){
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    login.getUsername(), login.getPassword()));
-        } catch (BadCredentialsException e) {
-            throw new AppException(MSG_LOGIN_FAIL);
-        }
-        final UserDetails userDetails = myUserDetailsService.loadUserByUsername(login.getUsername());
-        final String token = jwtUtil.generateToken(userDetails);
-        User user = userService.findByUsername(login.getUsername());
-        user.setLastLogin(Instant.now());
-        return new ResponseEntity<>(new UserInformationResponse(token, user), HttpStatus.OK);
+    public ResultResponse login(@RequestBody @Valid LoginRequest request){
+        return authService.login(request);
     }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws MessagingException {
-        User user = userService.findByEmail(request.getEmail());
+        UserShopEntity user = userService.findByEmail(request.getEmail());
         if(user == null)
             throw new NotFoundException(MSG_NOT_FOUND_USER);
 
@@ -128,7 +115,7 @@ public class AuthController {
         if(!request.getNewPassword().equals(request.getConfirmPassword()))
             throw new AppException("Password must match");
 
-        User user = userService.findByUserId(resetPasswordTokenEntity.getUser().getUserId());
+        UserShopEntity user = userService.findByUserId(resetPasswordTokenEntity.getUser().getUserId());
         user.setPassword(request.getNewPassword());
         userService.updateUser(user);
 

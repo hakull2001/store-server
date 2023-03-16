@@ -1,6 +1,6 @@
 package com.shopee.service.impl;
 
-import com.shopee.entity.User;
+import com.shopee.entity.UserShopEntity;
 import com.shopee.service.UserAuthorizerService;
 import com.shopee.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class UserAuthorizerServiceImpl implements UserAuthorizerService {
     @Override
     public boolean isYourself(Authentication authentication, Long userId) {
         org.springframework.security.core.userdetails.User userAuth = (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
-        User user = userService.findByUsername(userAuth.getUsername());
+        UserShopEntity user = userService.findByUsername(userAuth.getUsername());
         if (!Objects.equals(user.getUserId(), userId)) {
             throw new AccessDeniedException("Token has does not exit.");
         }

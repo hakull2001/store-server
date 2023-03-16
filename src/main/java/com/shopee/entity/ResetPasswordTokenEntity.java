@@ -18,11 +18,11 @@ public class ResetPasswordTokenEntity {
 
     private String token;
 
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = UserShopEntity.class, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "user_id")
-    private User user;
+    private UserShopEntity user;
 
-    public ResetPasswordTokenEntity(User user, String token) {
+    public ResetPasswordTokenEntity(UserShopEntity user, String token) {
         this.user = user;
         this.token = token;
     }

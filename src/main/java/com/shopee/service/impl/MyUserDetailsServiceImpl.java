@@ -1,7 +1,6 @@
 package com.shopee.service.impl;
 
-import com.oracle.svm.core.annotate.Inject;
-import com.shopee.entity.User;
+import com.shopee.entity.UserShopEntity;
 import com.shopee.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,12 +15,12 @@ import java.util.Set;
 
 @Service
 public class MyUserDetailsServiceImpl implements UserDetailsService {
-    @Inject
+    @Autowired
     private UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
+        UserShopEntity user = userRepository.findByUsername(username);
         if(user == null)
             throw new UsernameNotFoundException("Not found user");
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();

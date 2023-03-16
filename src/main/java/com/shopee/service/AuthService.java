@@ -1,7 +1,8 @@
 package com.shopee.service;
 
 import com.shopee.request.user.LoginRequest;
+import com.shopee.response.ResultResponse;
 
 public interface AuthService {
-    void login(LoginRequest request);
+    ResultResponse login(LoginRequest request);
 }

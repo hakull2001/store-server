@@ -1,14 +1,18 @@
 package com.shopee.repositories;
 
-import com.shopee.entity.User;
+import com.shopee.entity.UserShopEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-    User findByUsername(String username);
+public interface UserRepository extends JpaRepository<UserShopEntity, Long> {
+    UserShopEntity findByUsername(String username);
 
-    User findByEmail(String email);
+    UserShopEntity findByEmail(String email);
 
-    User findByUserId(Long userId);
+    UserShopEntity findByUserId(Long userId);
+
+    Optional<UserShopEntity> findByEmailOrUsernameOrPhoneNumber(String email, String username, String phoneNumber);
 }

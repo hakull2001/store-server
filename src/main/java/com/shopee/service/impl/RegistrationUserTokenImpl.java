@@ -1,7 +1,7 @@
 package com.shopee.service.impl;
 
 import com.shopee.entity.RegistrationUserTokenEntity;
-import com.shopee.entity.User;
+import com.shopee.entity.UserShopEntity;
 import com.shopee.exceptions.NotFoundException;
 import com.shopee.repositories.RegistrationUserTokenRepository;
 import com.shopee.service.RegistrationUserToken;
@@ -14,7 +14,7 @@ public class RegistrationUserTokenImpl implements RegistrationUserToken {
     private RegistrationUserTokenRepository registrationUserTokenRepository;
 
     @Override
-    public void createNewRegistrationUserToken(User user, String token) {
+    public void createNewRegistrationUserToken(UserShopEntity user, String token) {
         RegistrationUserTokenEntity tokenEntity = new RegistrationUserTokenEntity(user, token);
         registrationUserTokenRepository.save(tokenEntity);
     }

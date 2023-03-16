@@ -1,23 +1,23 @@
 package com.shopee.service;
 
-import com.shopee.entity.User;
+import com.shopee.entity.UserShopEntity;
 import com.shopee.request.user.SignUpRequest;
 
 import java.util.List;
 
 public interface UserService {
-    List<User> getAllUsers();
+    List<UserShopEntity> getAllUsers();
 
-    User findByUsername(String username);
+    UserShopEntity findByUsername(String username);
 
-    User signUp(SignUpRequest request);
+    UserShopEntity signUp(SignUpRequest request) throws Exception;
 
     void activeUser(String token);
 
-    User findByEmail(String email);
+    UserShopEntity findByEmail(String email);
 
-    User findByUserId(Long userId);
+    UserShopEntity findByUserId(Long userId);
 
-    void updateUser(User user);
+    void updateUser(UserShopEntity user);
 
 }

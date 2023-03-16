@@ -1,6 +1,6 @@
 package com.shopee.filter;
 
-import com.shopee.entity.User;
+import com.shopee.entity.UserShopEntity;
 import com.shopee.service.UserService;
 import com.shopee.service.impl.MyUserDetailsServiceImpl;
 import com.shopee.utils.JwtUtil;
@@ -47,7 +47,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                    User user = userService.findByUsername(username);
+                    UserShopEntity user = userService.findByUsername(username);
                     request.setAttribute("user", user);
                 }
             }

@@ -18,11 +18,11 @@ public class RegistrationUserTokenEntity {
 
     private String token;
 
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = UserShopEntity.class, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "user_id")
-    private User user;
+    private UserShopEntity user;
 
-    public RegistrationUserTokenEntity(User user, String token) {
+    public RegistrationUserTokenEntity(UserShopEntity user, String token) {
         this.user = user;
         this.token = token;
     }
