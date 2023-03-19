@@ -1,5 +1,6 @@
 package com.shopee.controller;
 
+import com.shopee.dto.base.BaseController;
 import com.shopee.entity.ResetPasswordTokenEntity;
 import com.shopee.entity.UserShopEntity;
 import com.shopee.exceptions.AppException;
@@ -9,6 +10,7 @@ import com.shopee.request.user.ForgotPasswordRequest;
 import com.shopee.request.user.LoginRequest;
 import com.shopee.request.user.ResetPasswordRequest;
 import com.shopee.request.user.SignUpRequest;
+import com.shopee.response.AuthenticationResponse;
 import com.shopee.response.ResultResponse;
 import com.shopee.service.*;
 import com.shopee.service.impl.MyUserDetailsServiceImpl;
@@ -17,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +29,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-public class AuthController {
+public class AuthController extends BaseController<Object> {
     private static final String MSG_SUBJECT_MAIL = "msg.subject.mail";
     private static final String MSG_CONTENT_MAIL = "msg.content.mail";
     private static final String MSC_SIGN_UP_SUCCESS = "msg.signup.success";
@@ -65,7 +69,7 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/sign-up")
-    public ResultResponse signUp(@RequestBody @Valid SignUpRequest request) throws Exception {
+    public ResponseEntity<?> signUp(@RequestBody @Valid SignUpRequest request) throws Exception {
         UserShopEntity user = userService.signUp(request);
         final String token = jwtUtil.generateToken(myUserDetailsService.loadUserByUsername(user.getUsername()));
         registrationUserToken.createNewRegistrationUserToken(user,token);
@@ -74,7 +78,7 @@ public class AuthController {
                 MSG_CONTENT_MAIL + token,
                 MSG_SUBJECT_MAIL
         ), true);
-        return ResultResponse.SUCCESS;
+        return this.resSuccess(new AuthenticationResponse(token, user));
     }
 
     @PostMapping("/active/{token}")
@@ -84,8 +88,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResultResponse login(@RequestBody @Valid LoginRequest request){
-        return authService.login(request);
+    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request){
+        AuthenticationResponse response =(AuthenticationResponse) authService.login(request).getResult();
+        return this.resSuccess(response);
     }
 
     @PostMapping("/forgot-password")
@@ -121,5 +126,23 @@ public class AuthController {
 
         resetPasswordTokenService.deleteByResetPasswordId(resetPasswordTokenEntity.getResetPasswordId());
         return new ResponseEntity<>(MSG_RESET_PASSWORD_SUCCESS, HttpStatus.OK);
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateToken(@RequestBody AuthenticationResponse authenticationResponse) {
+        try {
+            String jwt = authenticationResponse.getJwt();
+            String username = jwtUtil.extractUsername(jwt);
+            UserDetails userDetails = myUserDetailsService.loadUserByUsername(username);
+            if (jwtUtil.validateToken(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }
+            UserShopEntity user = userService.findByUsername(username);
+            return this.resSuccess(new AuthenticationResponse(jwtUtil.generateToken(userDetails), user));
+        } catch (Exception e) {
+            throw new AppException(e.getMessage());
+        }
     }
 }

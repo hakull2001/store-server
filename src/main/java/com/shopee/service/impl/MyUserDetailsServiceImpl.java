@@ -1,7 +1,7 @@
 package com.shopee.service.impl;
 
 import com.shopee.entity.UserShopEntity;
-import com.shopee.repositories.UserRepository;
+import com.shopee.repositories.UserShopRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +16,7 @@ import java.util.Set;
 @Service
 public class MyUserDetailsServiceImpl implements UserDetailsService {
     @Autowired
-    private UserRepository userRepository;
+    private UserShopRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

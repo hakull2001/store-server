@@ -1,8 +1,12 @@
 package com.shopee.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -13,7 +17,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClothesEntity {
+public class ProductEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,8 +38,10 @@ public class ClothesEntity {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
+    @JsonIgnore
     private CategoryEntity category;
 
-    @OneToMany(mappedBy = "clothes")
-    private List<CartDetailEntity> cartDetails;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductRateEntity> productRates;
 }

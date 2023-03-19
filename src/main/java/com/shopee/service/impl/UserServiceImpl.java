@@ -6,7 +6,7 @@ import com.shopee.enumerations.UserStatus;
 import com.shopee.exceptions.AppException;
 import com.shopee.exceptions.NotFoundException;
 import com.shopee.repositories.RegistrationUserTokenRepository;
-import com.shopee.repositories.UserRepository;
+import com.shopee.repositories.UserShopRepository;
 import com.shopee.request.user.SignUpRequest;
 import com.shopee.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
-    private UserRepository userRepository;
+    private UserShopRepository userRepository;
 
     @Autowired
     private RegistrationUserTokenRepository registrationUserTokenRepository;

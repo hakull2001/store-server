@@ -3,10 +3,10 @@ package com.shopee.service.impl;
 import com.shopee.entity.UserShopEntity;
 import com.shopee.enumerations.UserStatus;
 import com.shopee.exceptions.AppException;
-import com.shopee.repositories.UserRepository;
+import com.shopee.repositories.UserShopRepository;
 import com.shopee.request.user.LoginRequest;
+import com.shopee.response.AuthenticationResponse;
 import com.shopee.response.ResultResponse;
-import com.shopee.response.UserInformationResponse;
 import com.shopee.service.AuthService;
 import com.shopee.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private MyUserDetailsServiceImpl myUserDetailsService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserShopRepository userRepository;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -47,6 +47,6 @@ public class AuthServiceImpl implements AuthService {
             throw new AppException("Please check your email to active user");
         user.setLastLogin(Instant.now());
         userRepository.save(user);
-        return ResultResponse.SUCCESS.withResult(new UserInformationResponse(token, user));
+        return ResultResponse.SUCCESS.withResult(new AuthenticationResponse(token, user));
     }
 }

@@ -1,14 +1,17 @@
 package com.shopee.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.shopee.enumerations.RoleUser;
 import com.shopee.enumerations.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "user_accounts")
@@ -54,16 +57,21 @@ public class UserShopEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @OneToOne(mappedBy = "user")
-    private CartEntity cart;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+//    @JsonBackReference
+    private List<ProductRateEntity> rates;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private List<SaleOrderEntity> saleOrders;
+
 
     @PrePersist
     public void prePersist() {
         if (this.role == null)
             this.role = RoleUser.Member;
-        if(this.status == null)
+        if (this.status == null)
             this.status = UserStatus.NOT_ACTIVE;
-        if(this.createdAt == null)
+        if (this.createdAt == null)
             this.createdAt = Instant.now();
         this.password = new BCryptPasswordEncoder().encode(this.password);
     }
