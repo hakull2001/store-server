@@ -1,7 +1,6 @@
 package com.shopee.service.impl;
 
 import com.shopee.dto.PaginateDTO;
-import com.shopee.dto.PaginationDTO;
 import com.shopee.dto.base.BasePagination;
 import com.shopee.entity.CategoryEntity;
 import com.shopee.entity.ProductEntity;
@@ -28,7 +27,7 @@ public class ProductServiceImpl extends BasePagination<ProductEntity, ProductRep
     private CategoryRepository categoryRepository;
 
     @Autowired
-    private ProductRepository clothesRepository;
+    private ProductRepository productRepository;
 
     @Autowired
     private ProductServiceImpl(ProductRepository clothesRepository) {
@@ -60,15 +59,28 @@ public class ProductServiceImpl extends BasePagination<ProductEntity, ProductRep
     }
 
     @Override
-    public Optional<ProductEntity> getDetailProduct(Long productId) {
-        Optional<ProductEntity> clothesEntityOpt = clothesRepository.findById(productId);
-        if(clothesEntityOpt.isPresent())
-            return clothesEntityOpt;
+    public ProductEntity getDetailProduct(Long productId) {
+        Optional<ProductEntity> productEntityOpt = productRepository.findById(productId);
+        if(productEntityOpt.isPresent())
+            return productEntityOpt.get();
         throw new AppException("Not found this clothes");
     }
-
     @Override
-    public PaginationDTO<ProductEntity> getAll(Integer page, Integer perPage, HttpServletRequest servletRequest, SearchClothesRequest searchClothesRequest) {
-        return null;
+    public void update(ProductEntity product) {
+        productRepository.save(product);
+    }
+    @Override
+    public PaginateDTO<ProductEntity> getAll(Integer page, Integer perPage, HttpServletRequest servletRequest, SearchClothesRequest searchClothesRequest) {
+        GenericSpecification<ProductEntity> specification = new GenericSpecification<ProductEntity>().getBasicQuery(servletRequest);
+        if (searchClothesRequest.getFromPrice() != null) {
+            specification.add(new SearchCriteria("price", searchClothesRequest.getFromPrice(), SearchOperation.GREATER_THAN_EQUAL));
+        }
+        if (searchClothesRequest.getToPrice() != null) {
+            specification.add(new SearchCriteria("price", searchClothesRequest.getToPrice(), SearchOperation.LESS_THAN_EQUAL));
+        }
+        PaginateDTO<ProductEntity> paginate = this.paginate(page, perPage, specification);
+        if (paginate.getPageData().getTotalElements() == 0)
+            throw new NotFoundException("Not found clothes by this ");
+        return paginate;
     }
 }

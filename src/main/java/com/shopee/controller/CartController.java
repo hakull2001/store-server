@@ -1,9 +1,10 @@
 package com.shopee.controller;
 
+import com.shopee.dto.OderItemDTO;
 import com.shopee.dto.base.BaseController;
-import com.shopee.entity.DeliveryEntity;
-import com.shopee.entity.SaleOrderEntity;
-import com.shopee.entity.UserShopEntity;
+import com.shopee.entity.*;
+import com.shopee.exceptions.AppException;
+import com.shopee.exceptions.NotFoundException;
 import com.shopee.service.DeliveryService;
 import com.shopee.service.OrderItemService;
 import com.shopee.service.ProductService;
@@ -13,9 +14,11 @@ import com.shopee.specification.JoinCriteria;
 import com.shopee.specification.SearchCriteria;
 import com.shopee.specification.SearchOperation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.criteria.JoinType;
@@ -59,68 +62,68 @@ public class CartController extends BaseController<Object> {
         return this.resSuccess(saleOrder);
     }
 
-//    @PostMapping
-//    @PreAuthorize("@userAuthorizer.isMember(authentication)")
-//    @Transactional(rollbackFor = Exception.class)
-//    public ResponseEntity<?> addToCart(@RequestBody @Valid OrderItemDTO orderItemDTO, HttpServletRequest request) {
-//        User requestedUser = (User) request.getAttribute("user");
-//
-//        Product product = productService.findById(orderItemDTO.getProductId());
-//        if (product == null) {
-//            throw new NotFoundException("Not found product");
-//        }
-//
-//        if (product.getCurrentNumber() < orderItemDTO.getQuantity()) {
-//            throw new AppException("Not enough quantity");
-//        }
-//
-//        Delivery delivery = deliveryService.findByAddedToCartState();
-//
-//        GenericSpecification<SaleOrder> specification = new GenericSpecification<>();
-//        specification.add(new SearchCriteria("user", requestedUser.getId(), SearchOperation.EQUAL));
-//        specification.add(new SearchCriteria("delivery", delivery.getId(), SearchOperation.EQUAL));
-//        SaleOrder oldSaleOrder = saleOrderService.findOne(specification);
-//
-//        // update order item if exists
-//        if (oldSaleOrder != null) {
-//            GenericSpecification<OrderItem> orderItemGenericSpecification = new GenericSpecification<>();
-//            orderItemGenericSpecification.add(new SearchCriteria("saleOrder", oldSaleOrder.getId(), SearchOperation.EQUAL));
-//            orderItemGenericSpecification.add(new SearchCriteria("product", product.getId(), SearchOperation.EQUAL));
-//
-//            OrderItem oldOrderItem = orderItemService.findOne(orderItemGenericSpecification);
-//
-//            OrderItem newOrderItem;
-//
-//            if (oldOrderItem != null) {
-//                oldOrderItem.setQuantity(oldOrderItem.getQuantity() + orderItemDTO.getQuantity());
-//                newOrderItem = orderItemService.createOrUpdate(oldOrderItem);
-//            } else {
-//                OrderItem orderItem = new OrderItem();
-//                orderItem.setSaleOrder(oldSaleOrder);
-//                orderItem.setProduct(product);
-//                orderItem.setQuantity(orderItemDTO.getQuantity());
-//                newOrderItem = orderItemService.createOrUpdate(orderItem);
-//            }
-//
-//            return this.resSuccess(newOrderItem);
-//        }
-//
-//        // create new sale order and order item
-//        SaleOrder saleOrder = new SaleOrder();
-//        saleOrder.setUser(requestedUser);
-//        saleOrder.setDelivery(delivery);
-//        saleOrder.setCustomerAddress(requestedUser.getAddress());
-//        saleOrder.setPhone(requestedUser.getPhone());
-//
-//        SaleOrder newSaleOrder = saleOrderService.create(saleOrder);
-//
-//        OrderItem orderItem = new OrderItem();
-//        orderItem.setSaleOrder(newSaleOrder);
-//        orderItem.setProduct(product);
-//        orderItem.setQuantity(orderItemDTO.getQuantity());
-//
-//        OrderItem newOrderItem = orderItemService.createOrUpdate(orderItem);
-//
-//        return this.resSuccess(newOrderItem);
-//    }
+    @PostMapping
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> addToCart(@RequestBody @Valid OderItemDTO orderItemDTO, HttpServletRequest request) {
+        UserShopEntity requestedUser = (UserShopEntity) request.getAttribute("user");
+
+        ProductEntity product = productService.getDetailProduct(orderItemDTO.getProductId());
+        if (product == null) {
+            throw new NotFoundException("Not found product");
+        }
+
+        if (product.getAmount() < orderItemDTO.getQuantity()) {
+            throw new AppException("Not enough quantity");
+        }
+
+        DeliveryEntity delivery = deliveryService.findByAddedToCartState();
+
+        GenericSpecification<SaleOrderEntity> specification = new GenericSpecification<>();
+        specification.add(new SearchCriteria("user", requestedUser.getUserId(), SearchOperation.EQUAL));
+        specification.add(new SearchCriteria("delivery", delivery.getId(), SearchOperation.EQUAL));
+        SaleOrderEntity oldSaleOrder = saleOrderService.findOne(specification);
+
+        // update order item if exists
+        if (oldSaleOrder != null) {
+            GenericSpecification<OrderItemEntity> orderItemGenericSpecification = new GenericSpecification<>();
+            orderItemGenericSpecification.add(new SearchCriteria("saleOrder", oldSaleOrder.getId(), SearchOperation.EQUAL));
+            orderItemGenericSpecification.add(new SearchCriteria("product", product.getId(), SearchOperation.EQUAL));
+
+            OrderItemEntity oldOrderItem = orderItemService.findOne(orderItemGenericSpecification);
+
+            OrderItemEntity newOrderItem;
+
+            if (oldOrderItem != null) {
+                oldOrderItem.setQuantity(oldOrderItem.getQuantity() + orderItemDTO.getQuantity());
+                newOrderItem = orderItemService.createOrUpdate(oldOrderItem);
+            } else {
+                OrderItemEntity orderItem = new OrderItemEntity();
+                orderItem.setSaleOrder(oldSaleOrder);
+                orderItem.setProduct(product);
+                orderItem.setQuantity(orderItemDTO.getQuantity());
+                newOrderItem = orderItemService.createOrUpdate(orderItem);
+            }
+
+            return this.resSuccess(newOrderItem);
+        }
+
+        // create new sale order and order item
+        SaleOrderEntity saleOrder = new SaleOrderEntity();
+        saleOrder.setUser(requestedUser);
+        saleOrder.setDelivery(delivery);
+        saleOrder.setCustomerAddress(requestedUser.getAddress());
+        saleOrder.setPhoneNumber(requestedUser.getPhoneNumber());
+
+        SaleOrderEntity newSaleOrder = saleOrderService.create(saleOrder);
+
+        OrderItemEntity orderItem = new OrderItemEntity();
+        orderItem.setSaleOrder(newSaleOrder);
+        orderItem.setProduct(product);
+        orderItem.setQuantity(orderItemDTO.getQuantity());
+
+        OrderItemEntity newOrderItem = orderItemService.createOrUpdate(orderItem);
+
+        return this.resSuccess(newOrderItem);
+    }
 }

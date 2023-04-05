@@ -93,7 +93,7 @@ public class AuthController extends BaseController<Object> {
         return this.resSuccess(response);
     }
 
-    @PostMapping("/forgot-password")
+    @PostMapping("/forget-password")
     public ResponseEntity<?> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws MessagingException {
         UserShopEntity user = userService.findByEmail(request.getEmail());
         if(user == null)
