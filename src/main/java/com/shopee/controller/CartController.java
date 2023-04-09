@@ -47,7 +47,6 @@ public class CartController extends BaseController<Object> {
     public ResponseEntity<?> getOrderItemsOfCart(HttpServletRequest request) {
 
         UserShopEntity requestedUser = (UserShopEntity) request.getAttribute("user");
-        System.out.println(requestedUser.getUserId());
 
         DeliveryEntity delivery = deliveryService.findByAddedToCartState();
 
