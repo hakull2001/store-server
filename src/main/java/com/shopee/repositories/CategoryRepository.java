@@ -11,4 +11,6 @@ import java.util.Optional;
 @Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>, JpaSpecificationExecutor<CategoryEntity> {
     Optional<CategoryEntity> findById(Long categoryId);
+
+    Optional<CategoryEntity> findByName(String name);
 }

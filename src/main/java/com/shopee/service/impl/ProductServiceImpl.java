@@ -35,13 +35,13 @@ public class ProductServiceImpl extends BasePagination<ProductEntity, ProductRep
     }
 
     @Override
-    public PaginateDTO<ProductEntity> findAllByCategoryId(Integer page, Integer perPage, HttpServletRequest servletRequest, SearchClothesRequest searchClothesRequest, Long categoryId) {
+    public PaginateDTO<ProductEntity> findAllByCategoryId(Integer page, Integer perPage, HttpServletRequest servletRequest, SearchClothesRequest searchClothesRequest, String name) {
         GenericSpecification<ProductEntity> specification = new GenericSpecification<ProductEntity>().getBasicQuery(servletRequest);
-        Optional<CategoryEntity> categoryEntityOpt = categoryRepository.findById(categoryId);
+        Optional<CategoryEntity> categoryEntityOpt = categoryRepository.findByName(name);
 
         categoryEntityOpt.ifPresentOrElse(category -> {
-            specification.buildJoin(new JoinCriteria(SearchOperation.EQUAL, "category", "id",
-                    categoryId, JoinType.INNER));
+            specification.buildJoin(new JoinCriteria(SearchOperation.EQUAL, "category", "name",
+                    name, JoinType.INNER));
         }, () -> {
             throw new AppException("Not found this category ");
         });

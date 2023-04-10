@@ -20,9 +20,9 @@ public class ProductController extends BaseController<ProductEntity> {
     @Autowired
     private ProductService clothesService;
 
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getAllProductByCategory(@PathVariable("id") Long categoryId, SearchClothesRequest searchRequest, HttpServletRequest request) {
-        PaginateDTO<ProductEntity> paginateProducts = clothesService.findAllByCategoryId(searchRequest.getPage(), searchRequest.getPerPage(), request, searchRequest, categoryId);
+    @GetMapping(value = "/{name}")
+    public ResponseEntity<?> getAllProductByCategory(@PathVariable("name") String name, SearchClothesRequest searchRequest, HttpServletRequest request) {
+        PaginateDTO<ProductEntity> paginateProducts = clothesService.findAllByCategoryId(searchRequest.getPage(), searchRequest.getPerPage(), request, searchRequest, name);
 
         return this.resPagination(paginateProducts);
     }

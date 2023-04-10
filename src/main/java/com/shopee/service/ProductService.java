@@ -7,7 +7,7 @@ import com.shopee.request.clothes.SearchClothesRequest;
 import javax.servlet.http.HttpServletRequest;
 
 public interface ProductService {
-    PaginateDTO<ProductEntity> findAllByCategoryId(Integer page, Integer perPage, HttpServletRequest servletRequest, SearchClothesRequest searchClothesRequest, Long categoryId);
+    PaginateDTO<ProductEntity> findAllByCategoryId(Integer page, Integer perPage, HttpServletRequest servletRequest, SearchClothesRequest searchClothesRequest, String name);
 
     ProductEntity getDetailProduct(Long productId);
 

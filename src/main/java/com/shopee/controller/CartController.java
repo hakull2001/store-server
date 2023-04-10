@@ -14,7 +14,6 @@ import com.shopee.specification.JoinCriteria;
 import com.shopee.specification.SearchCriteria;
 import com.shopee.specification.SearchOperation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RestController
 @RequestMapping(value = "/api/v1/carts")
@@ -61,6 +61,18 @@ public class CartController extends BaseController<Object> {
         return this.resSuccess(saleOrder);
     }
 
+    @GetMapping("/amount")
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    public Long getAmountItemCart(HttpServletRequest request){
+        UserShopEntity requestedUser = (UserShopEntity) request.getAttribute("user");
+        AtomicReference<Long> amount = new AtomicReference<>(0L);
+        requestedUser.getSaleOrders().forEach(elm -> {
+            elm.getOrderItems().forEach(a -> {
+                amount.updateAndGet(v -> v + (a.getQuantity()));
+            });
+        });
+        return amount.get();
+    }
     @PostMapping
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
     @Transactional(rollbackFor = Exception.class)
