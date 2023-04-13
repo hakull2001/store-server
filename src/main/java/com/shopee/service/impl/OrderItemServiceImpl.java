@@ -5,10 +5,14 @@ import com.shopee.entity.OrderItemEntity;
 import com.shopee.repositories.OrderItemRepository;
 import com.shopee.service.OrderItemService;
 import com.shopee.specification.GenericSpecification;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
+@AllArgsConstructor
 public class OrderItemServiceImpl extends BasePagination<OrderItemEntity, OrderItemRepository> implements OrderItemService {
     @Autowired
     private OrderItemRepository orderItemRepository;
@@ -30,6 +34,6 @@ public class OrderItemServiceImpl extends BasePagination<OrderItemEntity, OrderI
 
     @Override
     public void deleteById(Long orderItemId) {
-        orderItemRepository.deleteById(orderItemId);
+        orderItemRepository.deleteOrderItem(orderItemId);
     }
 }

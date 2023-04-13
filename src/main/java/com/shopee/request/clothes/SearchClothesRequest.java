@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class SearchClothesRequest {
     private Long fromPrice;
     private Long toPrice;
+    private String name;
     private String size;
     private String color;
     private Long rating;

@@ -43,7 +43,7 @@ public class ProductServiceImpl extends BasePagination<ProductEntity, ProductRep
             specification.buildJoin(new JoinCriteria(SearchOperation.EQUAL, "category", "name",
                     name, JoinType.INNER));
         }, () -> {
-            throw new AppException("Not found this category ");
+//            throw new AppException("Not found this category ");
         });
 
         if (searchClothesRequest.getFromPrice() != null) {
@@ -52,9 +52,11 @@ public class ProductServiceImpl extends BasePagination<ProductEntity, ProductRep
         if (searchClothesRequest.getToPrice() != null) {
             specification.add(new SearchCriteria("price", searchClothesRequest.getToPrice(), SearchOperation.LESS_THAN_EQUAL));
         }
+        if(searchClothesRequest.getName() != null)
+            specification.add(new SearchCriteria("name", searchClothesRequest.getName(), SearchOperation.LIKE));
+
         PaginateDTO<ProductEntity> paginate = this.paginate(page, perPage, specification);
-        if (paginate.getPageData().getTotalElements() == 0)
-            throw new NotFoundException("Not found clothes by this ");
+
         return paginate;
     }
 
@@ -78,9 +80,12 @@ public class ProductServiceImpl extends BasePagination<ProductEntity, ProductRep
         if (searchClothesRequest.getToPrice() != null) {
             specification.add(new SearchCriteria("price", searchClothesRequest.getToPrice(), SearchOperation.LESS_THAN_EQUAL));
         }
+        if(searchClothesRequest.getName() != null){
+            specification.add(new SearchCriteria("name", searchClothesRequest.getName(), SearchOperation.LIKE));
+        }
         PaginateDTO<ProductEntity> paginate = this.paginate(page, perPage, specification);
-        if (paginate.getPageData().getTotalElements() == 0)
-            throw new NotFoundException("Not found clothes by this ");
+//        if (paginate.getPageData().getTotalElements() == 0)
+//            throw new NotFoundException("Not found clothes by this ");
         return paginate;
     }
 }

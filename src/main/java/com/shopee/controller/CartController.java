@@ -63,7 +63,7 @@ public class CartController extends BaseController<Object> {
 
     @GetMapping("/amount")
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
-    public Long getAmountItemCart(HttpServletRequest request){
+    public Long getAmountItemCart(HttpServletRequest request) {
         UserShopEntity requestedUser = (UserShopEntity) request.getAttribute("user");
         AtomicReference<Long> amount = new AtomicReference<>(0L);
         requestedUser.getSaleOrders().forEach(elm -> {
@@ -73,6 +73,7 @@ public class CartController extends BaseController<Object> {
         });
         return amount.get();
     }
+
     @PostMapping
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
     @Transactional(rollbackFor = Exception.class)
@@ -107,12 +108,14 @@ public class CartController extends BaseController<Object> {
 
             if (oldOrderItem != null) {
                 oldOrderItem.setQuantity(oldOrderItem.getQuantity() + orderItemDTO.getQuantity());
+                oldOrderItem.setColor(orderItemDTO.getColor());
                 newOrderItem = orderItemService.createOrUpdate(oldOrderItem);
             } else {
                 OrderItemEntity orderItem = new OrderItemEntity();
                 orderItem.setSaleOrder(oldSaleOrder);
                 orderItem.setProduct(product);
                 orderItem.setQuantity(orderItemDTO.getQuantity());
+                orderItem.setColor(orderItemDTO.getColor());
                 newOrderItem = orderItemService.createOrUpdate(orderItem);
             }
 
@@ -132,9 +135,20 @@ public class CartController extends BaseController<Object> {
         orderItem.setSaleOrder(newSaleOrder);
         orderItem.setProduct(product);
         orderItem.setQuantity(orderItemDTO.getQuantity());
-
+        orderItem.setColor(orderItemDTO.getColor());
         OrderItemEntity newOrderItem = orderItemService.createOrUpdate(orderItem);
 
         return this.resSuccess(newOrderItem);
     }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    @Transactional(rollbackFor = Exception.class)
+    public ResponseEntity<?> deleteByProductId(@PathVariable Long id){
+        OrderItemEntity orderItem = orderItemService.findById(id);
+        orderItemService.deleteById(orderItem.getId());
+
+        return this.resSuccess("success");
+    }
+
 }

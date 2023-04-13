@@ -18,4 +18,7 @@ public class OderItemDTO {
     @NotNull
     @Min(1)
     private Integer quantity;
+
+    @NotNull
+    private String color;
 }

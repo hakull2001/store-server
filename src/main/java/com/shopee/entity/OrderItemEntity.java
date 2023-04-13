@@ -34,6 +34,9 @@ public class OrderItemEntity {
     @Column(nullable = false)
     private Integer quantity;
 
+    @Column
+    private String color;
+
     @CreationTimestamp
     private Timestamp createdAt;
 
