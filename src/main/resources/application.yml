@@ -35,3 +35,7 @@ jpa:
         hbm2ddl.auto: update
         show_sql: true
 ---
+vnPay:
+  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  tmnCode: VUXA6Y81
+  hashSecret: KKSDDFNAONXUIFQJXFFXHBXEOAQLCGGQ
