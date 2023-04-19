@@ -27,7 +27,6 @@ import java.util.*;
 @RequestMapping("/api/v1/payment")
 @SecurityRequirement(name = "Authorization")
 public class PaymentController {
-    private SaleOrderService saleOrderService;
 
     @Value("${vnPay.tmnCode}")
     private String tmnCode;
@@ -47,9 +46,9 @@ public class PaymentController {
         params.put("vnp_Version", "2.1.0");
         params.put("vnp_Command", "pay");
         params.put("vnp_TmnCode", "VUXA6Y81");
-        params.put("vnp_Amount", "1000000");
+        params.put("vnp_Amount", String.valueOf(vnPayRequest.getVnpAmount() * 100));
         params.put("vnp_CurrCode", "VND");
-        params.put("vnp_TxnRef", "5");
+        params.put("vnp_TxnRef", Config.getRandomNumber(8));
         params.put("vnp_OrderInfo", "Thanh toan don hang");
         params.put("vnp_OrderType", "other");
         params.put("vnp_Locale", "vn");
@@ -59,7 +58,7 @@ public class PaymentController {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());
-         params.put("vnp_CreateDate", vnp_CreateDate);
+        params.put("vnp_CreateDate", vnp_CreateDate);
 
         List fieldNames = new ArrayList(params.keySet());
         Collections.sort(fieldNames);

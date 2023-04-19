@@ -49,7 +49,6 @@ public class CartController extends BaseController<Object> {
         UserShopEntity requestedUser = (UserShopEntity) request.getAttribute("user");
 
         DeliveryEntity delivery = deliveryService.findByAddedToCartState();
-
         GenericSpecification<SaleOrderEntity> specification = new GenericSpecification<>();
         specification.buildJoin(new JoinCriteria(SearchOperation.EQUAL, "user", "user_id",
                 requestedUser.getUserId(), JoinType.INNER));
@@ -65,15 +64,40 @@ public class CartController extends BaseController<Object> {
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
     public Long getAmountItemCart(HttpServletRequest request) {
         UserShopEntity requestedUser = (UserShopEntity) request.getAttribute("user");
+
+        DeliveryEntity delivery = deliveryService.findByAddedToCartState();
+        GenericSpecification<SaleOrderEntity> specification = new GenericSpecification<>();
+        specification.buildJoin(new JoinCriteria(SearchOperation.EQUAL, "user", "user_id",
+                requestedUser.getUserId(), JoinType.INNER));
+        specification.buildJoin(new JoinCriteria(SearchOperation.EQUAL, "delivery", "id",
+                delivery.getId(), JoinType.INNER));
+
+        SaleOrderEntity saleOrder = saleOrderService.findOne(specification);
         AtomicReference<Long> amount = new AtomicReference<>(0L);
-        requestedUser.getSaleOrders().forEach(elm -> {
-            elm.getOrderItems().forEach(a -> {
-                amount.updateAndGet(v -> v + (a.getQuantity()));
-            });
+        saleOrder.getOrderItems().forEach(e -> {
+            amount.updateAndGet(v -> v + e.getQuantity());
         });
         return amount.get();
     }
+    @GetMapping("/subtotal")
+    @PreAuthorize("@userAuthorizer.isMember(authentication)")
+    public Long getSubtotal(HttpServletRequest request) {
+        UserShopEntity requestedUser = (UserShopEntity) request.getAttribute("user");
 
+        DeliveryEntity delivery = deliveryService.findByAddedToCartState();
+        GenericSpecification<SaleOrderEntity> specification = new GenericSpecification<>();
+        specification.buildJoin(new JoinCriteria(SearchOperation.EQUAL, "user", "user_id",
+                requestedUser.getUserId(), JoinType.INNER));
+        specification.buildJoin(new JoinCriteria(SearchOperation.EQUAL, "delivery", "id",
+                delivery.getId(), JoinType.INNER));
+
+        SaleOrderEntity saleOrder = saleOrderService.findOne(specification);
+        AtomicReference<Long> amount = new AtomicReference<>(0L);
+        saleOrder.getOrderItems().forEach(e -> {
+            amount.updateAndGet(v -> v + e.getQuantity() * e.getProduct().getPrice());
+        });
+        return amount.get();
+    }
     @PostMapping
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
     @Transactional(rollbackFor = Exception.class)

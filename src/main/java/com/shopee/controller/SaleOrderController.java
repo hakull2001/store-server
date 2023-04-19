@@ -12,6 +12,7 @@ import com.shopee.service.ProductService;
 import com.shopee.service.SaleOrderService;
 import com.shopee.service.UserService;
 import com.shopee.specification.GenericSpecification;
+import com.shopee.specification.JoinCriteria;
 import com.shopee.specification.SearchCriteria;
 import com.shopee.specification.SearchOperation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -21,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.sql.Timestamp;
@@ -56,13 +58,16 @@ public class SaleOrderController extends BaseController<SaleOrderEntity> {
         DeliveryEntity deliveryAddedToCart = deliveryService.findByAddedToCartState();
 
         GenericSpecification<SaleOrderEntity> specification = new GenericSpecification<SaleOrderEntity>().getBasicQuery(request);
-        specification.add(new SearchCriteria("delivery", deliveryAddedToCart.getId(), SearchOperation.NOT_EQUAL));
-        specification.add(new SearchCriteria("user", requestedUser.getUserId(), SearchOperation.EQUAL));
+        specification.buildJoin(new JoinCriteria(SearchOperation.EQUAL, "user", "user_id",
+                requestedUser.getUserId(), JoinType.INNER));
+        specification.buildJoin(new JoinCriteria(SearchOperation.EQUAL, "delivery", "id",
+                deliveryAddedToCart.getId(), JoinType.INNER));
 
         if (deliveryIndex != null) {
             DeliveryEntity deliverySearch = deliveryService.findByIndex(deliveryIndex);
             if (deliverySearch != null) {
-                specification.add(new SearchCriteria("delivery", deliverySearch.getId(), SearchOperation.EQUAL));
+                specification.buildJoin(new JoinCriteria(SearchOperation.EQUAL, "delivery", "id",
+                        deliverySearch.getId(), JoinType.INNER));
             }
         }
 
@@ -82,6 +87,7 @@ public class SaleOrderController extends BaseController<SaleOrderEntity> {
         DeliveryEntity deliveryAddedToCart = deliveryService.findByAddedToCartState();
 
         GenericSpecification<SaleOrderEntity> specification = new GenericSpecification<SaleOrderEntity>().getBasicQuery(request);
+
         specification.add(new SearchCriteria("delivery", deliveryAddedToCart.getId(), SearchOperation.NOT_EQUAL));
 
         if (fetchType != null && fetchType.equals(Common.FETCH_TYPE_ADMIN)) {
