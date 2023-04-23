@@ -1,0 +1,56 @@
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /api/swagger-ui
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/datn
+    username: postgres
+    password: 26113012a
+  data:
+    cassandra:
+      schema-action: create_if_not_exists
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      max-file-size: 10MB
+  main:
+    allow-circular-references: true
+
+# Show Hibernate SQL query
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+jwt:
+  secret_key: 12345
+  time_expiration: 86400000
+
+mail:
+  username: "birtday11111@gmail.com"
+  password: "26113012a"
+
+cloudinary:
+  url: "${CLOUDINARY_URL"
+
+storage:
+  location: upload-dir
+
+user:
+  firstName: "Le Van"
+  lastName: "Ha"
+  username: "hadepchai"
+  password: "26113012a"
+  address: "quang nih"
+  amount: 10
+  role: "Admin"
+  email: "birtday11111@gmail.com"
+  phone: "0366754936"
