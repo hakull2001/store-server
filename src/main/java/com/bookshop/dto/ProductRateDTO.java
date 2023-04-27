@@ -24,12 +24,12 @@ public class ProductRateDTO {
 
     private Long userId;
 
-    @NotNull
+    @NotNull(message = "Bạn phải chọn xếp hạng số sao")
     @Min(ProductRateEnum.MIN)
     @Max(ProductRateEnum.MAX)
     private Integer value;
 
-    @NotBlank
-    @Length(max = Common.STRING_LENGTH_LIMIT)
+    @NotBlank(message = "không được để trống")
+    @Length(max = Common.STRING_LENGTH_LIMIT, message = "Quá số lượng ký tự cho phép")
     private String comment;
 }

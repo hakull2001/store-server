@@ -3,6 +3,7 @@ package com.bookshop.controllers;
 import com.bookshop.base.BaseController;
 import com.bookshop.constants.Common;
 import com.bookshop.dao.*;
+import com.bookshop.dto.DasboardDTO;
 import com.bookshop.dto.DeliveryDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.exceptions.AppException;
@@ -16,6 +17,7 @@ import com.bookshop.specifications.SearchCriteria;
 import com.bookshop.specifications.SearchOperation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +26,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RestController
 @RequestMapping(value = "/api/sale-orders")
@@ -261,6 +263,24 @@ public class SaleOrderController extends BaseController<SaleOrder> {
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     public ResponseEntity<?> getAllDasboard(HttpServletRequest request){
         User requestedUser = (User) request.getAttribute("user");
+        List<SaleOrder> saleOrders = saleOrderService.getALl();
+        List<DasboardDTO> dasboardDTOS = new ArrayList<>();
+        Set<Long> userIds=  new HashSet<>();
+        AtomicReference<Long> amountUser = new AtomicReference<>(0L);
+        saleOrders.forEach(saleOrder -> {
+            DasboardDTO dasboardDTO = new DasboardDTO();
+            dasboardDTO.setMonth((long) saleOrder.getOrderedAt().getMonth());
+            userIds.add(saleOrder.getUser().getId());
+            amountUser.updateAndGet(v -> v + 1L);
+            AtomicReference<Long> amount = new AtomicReference<>(0L);
+            saleOrder.getOrderItems().forEach(orderItem -> {
+                amount.updateAndGet(v -> v + orderItem.getQuantity() * orderItem.getProduct().getPrice());
+            });
+            dasboardDTO.setUserIds(userIds);
+            dasboardDTO.setBudget(amount.get());
+            dasboardDTOS.add(dasboardDTO);
+        });
 
+        return new ResponseEntity<>(dasboardDTOS, HttpStatus.OK);
     }
 }

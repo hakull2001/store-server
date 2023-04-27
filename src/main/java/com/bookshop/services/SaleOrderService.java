@@ -20,5 +20,7 @@ public interface SaleOrderService {
 
     Long calculateTotalAmount(List<OrderItem> orderItems);
 
+    List<SaleOrder> getALl();
+
     PaginateDTO<SaleOrder> getList(Integer page, Integer perPage, GenericSpecification<SaleOrder> specification);
 }

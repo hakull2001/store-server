@@ -1,9 +1,12 @@
 package com.bookshop.services.impl;
 
 import com.bookshop.base.BasePagination;
+import com.bookshop.constants.Common;
+import com.bookshop.dao.Delivery;
 import com.bookshop.dao.OrderItem;
 import com.bookshop.dao.SaleOrder;
 import com.bookshop.dto.pagination.PaginateDTO;
+import com.bookshop.repositories.DeliveryRepository;
 import com.bookshop.repositories.SaleOrderRepository;
 import com.bookshop.services.SaleOrderService;
 import com.bookshop.specifications.GenericSpecification;
@@ -17,6 +20,9 @@ public class SaleOrderServiceImpl extends BasePagination<SaleOrder, SaleOrderRep
 
     @Autowired
     private SaleOrderRepository saleOrderRepository;
+
+    @Autowired
+    private DeliveryRepository deliveryRepository;
 
     @Autowired
     public SaleOrderServiceImpl(SaleOrderRepository saleOrderRepository) {
@@ -55,6 +61,13 @@ public class SaleOrderServiceImpl extends BasePagination<SaleOrder, SaleOrderRep
             totalAmount += orderItem.getProduct().getPrice() * orderItem.getQuantity();
         }
         return totalAmount;
+    }
+
+    @Override
+    public List<SaleOrder> getALl() {
+        List<Delivery> deliveries = deliveryRepository.findByIndexIs(Common.DELIVERY_DELIVERED_INDEX);
+        List<SaleOrder> saleOrders = saleOrderRepository.findByDeliveryIn(deliveries);
+        return saleOrders;
     }
 
     @Override

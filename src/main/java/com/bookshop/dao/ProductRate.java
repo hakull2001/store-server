@@ -1,15 +1,14 @@
 package com.bookshop.dao;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 @Table(name = "product_rates", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "product_id"}))
@@ -37,8 +36,12 @@ public class ProductRate {
     private String comment;
 
     @CreationTimestamp
-    private Timestamp createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
-    private Timestamp updatedAt;
+    private Date updatedAt;
 }
