@@ -12,10 +12,9 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DasboardDTO {
+    private Long saleOrders;
     private Long budget;
-    private Set<Long> userIds;
-    private Integer taskProgress;
-    private Long totalUserPurchase;
-    private Long ordersAmount;
+    private Long products;
     private Long month;
+    private Long customers;
 }

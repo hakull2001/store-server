@@ -1,5 +1,6 @@
 package com.bookshop.dao;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
@@ -51,5 +52,6 @@ public class SaleOrder {
     @UpdateTimestamp
     private Timestamp updatedAt;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Timestamp orderedAt;
 }

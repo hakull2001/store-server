@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.criteria.JoinType;
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
@@ -53,18 +54,20 @@ public class PaymentController extends BaseController<PaymentUser> {
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
     @GetMapping("/admin")
     public ResponseEntity<?> getAllPayment(HttpServletRequest request,
-                                           @RequestParam(name = "fromDate") Instant fromDate,
-                                           @RequestParam(name = "toDate") Instant toDate,
-                                           @RequestParam(name = "page") Integer page,
-                                           @RequestParam(name = "perPage") Integer perPage) {
+                                           @RequestParam(name = "fromDate", required = false) String fromDate,
+                                           @RequestParam(name = "toDate", required = false) String toDate,
+                                           @RequestParam(name = "page", required = false) Integer page,
+                                           @RequestParam(name = "perPage", required = false) Integer perPage) {
         GenericSpecification<PaymentUser> specification = new GenericSpecification<PaymentUser>().getBasicQuery(request);
-        if (fromDate != null) {
-            specification.add(new SearchCriteria("create_date", fromDate, SearchOperation.GREATER_THAN_EQUAL));
+        if (fromDate != null && toDate == null) {
+            specification.add(new SearchCriteria("createdAt", fromDate, SearchOperation.FROM_DATE));
+        } else if (fromDate == null && toDate != null) {
+            specification.add(new SearchCriteria("createdAt", toDate, SearchOperation.TO_DATE));
+        } else if (fromDate != null) {
+            specification.add(new SearchCriteria("createdAt", fromDate, SearchOperation.FROM_DATE));
+            specification.add(new SearchCriteria("createdAt", toDate, SearchOperation.TO_DATE));
         }
-        if (toDate != null) {
-            specification.add(new SearchCriteria("create_date", toDate, SearchOperation.LESS_THAN_EQUAL));
-        }
-
+        specification.add(new SearchCriteria("paymentStatus", 1L, SearchOperation.EQUAL));
         PaginateDTO<PaymentUser> paginatePayments = paymentUserService.getList(page, perPage, specification);
         return this.resPagination(paginatePayments);
     }

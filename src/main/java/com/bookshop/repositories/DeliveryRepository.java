@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
     Delivery findByIndex(String index);
-
-    List<Delivery> findByIndexIs(String index);
+List<Delivery> findByIndexIs(String index);
+    List<Delivery> findByIndexNotIn(List<String> index);
 }

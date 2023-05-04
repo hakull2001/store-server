@@ -27,4 +27,6 @@ public interface ProductService {
     void deleteById(Long productId);
 
     PaginateDTO<Product> getList(Integer page, Integer perPage, GenericSpecification<Product> specification);
+
+    List<Product> getAllSellProducts();
 }

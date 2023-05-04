@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -261,26 +263,42 @@ public class SaleOrderController extends BaseController<SaleOrder> {
 
     @GetMapping("/list")
     @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
-    public ResponseEntity<?> getAllDasboard(HttpServletRequest request){
+    public ResponseEntity<?> getAllDasboard(HttpServletRequest request) {
         User requestedUser = (User) request.getAttribute("user");
         List<SaleOrder> saleOrders = saleOrderService.getALl();
-        List<DasboardDTO> dasboardDTOS = new ArrayList<>();
-        Set<Long> userIds=  new HashSet<>();
-        AtomicReference<Long> amountUser = new AtomicReference<>(0L);
-        saleOrders.forEach(saleOrder -> {
-            DasboardDTO dasboardDTO = new DasboardDTO();
-            dasboardDTO.setMonth((long) saleOrder.getOrderedAt().getMonth());
-            userIds.add(saleOrder.getUser().getId());
-            amountUser.updateAndGet(v -> v + 1L);
-            AtomicReference<Long> amount = new AtomicReference<>(0L);
-            saleOrder.getOrderItems().forEach(orderItem -> {
-                amount.updateAndGet(v -> v + orderItem.getQuantity() * orderItem.getProduct().getPrice());
-            });
-            dasboardDTO.setUserIds(userIds);
-            dasboardDTO.setBudget(amount.get());
-            dasboardDTOS.add(dasboardDTO);
-        });
+        System.out.println(saleOrders.size());
+        DasboardDTO dasboardDTO = new DasboardDTO();
+        dasboardDTO.setSaleOrders((long) saleOrders.size());
+        Long budget = 0L;
+        Set<Long> customerIds = new HashSet<>();
+        Long products = 0L;
+        for (SaleOrder saleOrder : saleOrders) {
+            for (OrderItem orderItem : saleOrder.getOrderItems()) {
+                budget += orderItem.getQuantity() * orderItem.getProduct().getPrice();
+                products += orderItem.getQuantity();
+            }
 
+            customerIds.add(saleOrder.getUser().getId());
+        }
+
+        dasboardDTO.setBudget(budget);
+        dasboardDTO.setCustomers((long) customerIds.size());
+        dasboardDTO.setProducts(products);
+        return new ResponseEntity<>(dasboardDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/months")
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    public ResponseEntity<?> getAllDasboardMonth(HttpServletRequest request) {
+        User requestedUser = (User) request.getAttribute("user");
+        List<DasboardDTO> dasboardDTOS = saleOrderService.getAllMonths();
         return new ResponseEntity<>(dasboardDTOS, HttpStatus.OK);
+    }
+
+    @GetMapping("/sale-orders-all")
+    @PreAuthorize("@userAuthorizer.isAdmin(authentication)")
+    public ResponseEntity<?> getAllSaleOrders(HttpServletRequest request){
+        User requestedUser = (User) request.getAttribute("user");
+        return this.resListSuccess(saleOrderService.getList());
     }
 }

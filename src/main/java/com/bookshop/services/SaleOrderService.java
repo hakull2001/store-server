@@ -2,6 +2,7 @@ package com.bookshop.services;
 
 import com.bookshop.dao.OrderItem;
 import com.bookshop.dao.SaleOrder;
+import com.bookshop.dto.DasboardDTO;
 import com.bookshop.dto.pagination.PaginateDTO;
 import com.bookshop.specifications.GenericSpecification;
 
@@ -22,5 +23,9 @@ public interface SaleOrderService {
 
     List<SaleOrder> getALl();
 
+    List<DasboardDTO> getAllMonths();
+
     PaginateDTO<SaleOrder> getList(Integer page, Integer perPage, GenericSpecification<SaleOrder> specification);
+
+    List<SaleOrder> getList();
 }

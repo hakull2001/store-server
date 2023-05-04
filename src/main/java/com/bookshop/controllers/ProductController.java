@@ -185,4 +185,11 @@ public class ProductController extends BaseController<Product> {
 
         return this.resListSuccess(productImageList);
     }
+
+
+    @GetMapping("/sell-products")
+    public ResponseEntity<?> getAllSellProducts(){
+        return this.resListSuccess(productService.getAllSellProducts());
+    }
+
 }

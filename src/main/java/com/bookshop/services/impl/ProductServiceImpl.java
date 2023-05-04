@@ -87,4 +87,11 @@ public class ProductServiceImpl extends BasePagination<Product, ProductRepositor
     public PaginateDTO<Product> getList(Integer page, Integer perPage, GenericSpecification<Product> specification) {
         return this.paginate(page, perPage, specification);
     }
+
+    @Override
+    public List<Product> getAllSellProducts() {
+        List<Long> sellProductIds = productRepository.getAllSellProductIds();
+
+        return productRepository.findByIdIn(sellProductIds);
+    }
 }
