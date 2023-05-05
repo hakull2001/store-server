@@ -46,6 +46,12 @@ public class ProductRateController extends BaseController<ProductRate> {
         return this.resPagination(paginateProductRates);
     }
 
+    @GetMapping("/rates")
+    public ResponseEntity<?> getListProductRates(
+            HttpServletRequest request
+    ){
+        return this.resListSuccess(productRateService.getList());
+    }
     @GetMapping("/detail")
     @PreAuthorize("@userAuthorizer.isMember(authentication)")
     public ResponseEntity<?> getProductRateByProductId(@RequestParam(name = "productId") Long productId, HttpServletRequest request) {

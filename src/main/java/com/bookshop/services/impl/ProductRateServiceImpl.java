@@ -15,6 +15,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ProductRateServiceImpl extends BasePagination<ProductRate, ProductRateRepository> implements ProductRateService {
 
@@ -53,5 +55,10 @@ public class ProductRateServiceImpl extends BasePagination<ProductRate, ProductR
     @Override
     public PaginateDTO<ProductRate> getList(Integer page, Integer perPage, GenericSpecification<ProductRate> specification) {
         return this.paginate(page, perPage, specification);
+    }
+
+    @Override
+    public List<ProductRate> getList() {
+        return productRateRepository.findAll();
     }
 }

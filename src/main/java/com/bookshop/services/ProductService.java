@@ -29,4 +29,6 @@ public interface ProductService {
     PaginateDTO<Product> getList(Integer page, Integer perPage, GenericSpecification<Product> specification);
 
     List<Product> getAllSellProducts();
+
+
 }
