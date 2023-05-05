@@ -49,7 +49,7 @@ public class PaymentController {
         params.put("vnp_TmnCode", "VUXA6Y81");
         params.put("vnp_Amount", "1000000");
         params.put("vnp_CurrCode", "VND");
-        params.put("vnp_TxnRef", "5");
+        params.put("vnp_TxnRef", "7");
         params.put("vnp_OrderInfo", "Thanh toan don hang");
         params.put("vnp_OrderType", "other");
         params.put("vnp_Locale", "vn");
